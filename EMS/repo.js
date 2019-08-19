@@ -2,7 +2,7 @@
  * @module EMS.repo
  * @author Simon Petrac
  * 
- * {@link https://www.w3.org/TR/odrl-model/#infoModel ODRL Information Model}
+ * {@link https://www.w3.org/TR/odrl-model/#infoModel Entity Information Model}
  */
 
 const
@@ -32,7 +32,7 @@ _.enumerate(exports, 'connect', function (hostname = "localhost", username = "ne
     _driver = Neo4j.driver("bolt://" + hostname, Neo4j.auth.basic(username, password));
 });
 
-_.define(exports, 'wipeData', async function (confirm = false) {
+_.enumerate(exports, 'wipeData', async function (confirm = false) {
     // TODO temporary - remove after testing
     _.assert(!confirm, "not confirmed");
     _.assert(_driver, "not connected");
@@ -41,27 +41,26 @@ _.define(exports, 'wipeData', async function (confirm = false) {
 
 /**
  * @name _uids
- * @type {Mapy<string, ODRL>}
+ * @type {Mapy<string, Entity>}
  * @private
  */
 const _UIDs = new Map();
 
 /**
- * @name ODRL
+ * @name Entity
  * @extends EventEmitter
  * @class
  * @private
  * @abstract
  */
-class ODRL extends EventEmitter {
+class Entity extends EventEmitter {
 
     /**
-     * @constructs ODRL
+     * @constructs Entity
      * @param {*} param 
      */
     constructor(param) {
-        // IDEA as base class for everything
-        // _.assert(new.target != ODRL);
+        _.assert(new.target != Entity);
         _.assert.object(param);
         super();
         _.define(this, '_param', param);
@@ -74,7 +73,7 @@ class ODRL extends EventEmitter {
     }
 
     /**
-     * @name ODRL#_touch
+     * @name Entity#_touch
      * @returns {boolean}
      * @private
      */
@@ -85,7 +84,7 @@ class ODRL extends EventEmitter {
     }
 
     /**
-     * @name ODRL#_clear
+     * @name Entity#_clear
      * @param {function} clearedCB
      * @returns {boolean}
      * @private
@@ -104,7 +103,7 @@ class ODRL extends EventEmitter {
     }
 
     /**
-     * @name ODRL#_expire
+     * @name Entity#_expire
      * @param {number} [ms=0]
      * @returns {boolean}
      * @private
@@ -127,10 +126,10 @@ class ODRL extends EventEmitter {
 
 /**
  * @name EMS.repo.Asset
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Asset', class extends ODRL {
+_.define(exports, 'Asset', class extends Entity {
 
     /**
      * @constructs Asset
@@ -165,10 +164,10 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
 
 /**
  * @name EMS.repo.Party
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Party', class extends ODRL {
+_.define(exports, 'Party', class extends Entity {
 
     /**
      * @constructs Party
@@ -203,10 +202,10 @@ _.define(exports, 'PartyCollection', class extends exports.Party {
 
 /**
  * @name EMS.repo.Action
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Action', class extends ODRL {
+_.define(exports, 'Action', class extends Entity {
 
     /**
      * @constructs Action
@@ -222,10 +221,10 @@ _.define(exports, 'Action', class extends ODRL {
 
 /**
  * @name EMS.repo.Policy
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Policy', class extends ODRL {
+_.define(exports, 'Policy', class extends Entity {
 
     /**
      * @constructs Policy
@@ -299,10 +298,10 @@ _.define(exports, 'Agreement', class extends exports.Policy {
 
 /**
  * @name EMS.repo.ConflictTerm
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'ConflictTerm', class extends ODRL {
+_.define(exports, 'ConflictTerm', class extends Entity {
 
     /**
      * @constructs ConflictTerm
@@ -318,10 +317,10 @@ _.define(exports, 'ConflictTerm', class extends ODRL {
 
 /**
  * @name EMS.repo.Rule
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Rule', class extends ODRL {
+_.define(exports, 'Rule', class extends Entity {
 
     /**
      * @constructs Rule
@@ -395,10 +394,10 @@ _.define(exports, 'Duty', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Contraint
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Contraint', class extends ODRL {
+_.define(exports, 'Contraint', class extends Entity {
 
     /**
      * @constructs Contraint
@@ -414,10 +413,10 @@ _.define(exports, 'Contraint', class extends ODRL {
 
 /**
  * @name EMS.repo.LogicalContraint
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'LogicalContraint', class extends ODRL {
+_.define(exports, 'LogicalContraint', class extends Entity {
 
     /**
      * @constructs LogicalContraint
@@ -433,10 +432,10 @@ _.define(exports, 'LogicalContraint', class extends ODRL {
 
 /**
  * @name EMS.repo.Operator
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'Operator', class extends ODRL {
+_.define(exports, 'Operator', class extends Entity {
 
     /**
      * @constructs Operator
@@ -454,11 +453,11 @@ _.define(exports, 'Operator', class extends ODRL {
  * @name EMS.repo.LeftOperand
  * @class
  */
-_.define(exports, 'LeftOperand', class extends ODRL {
+_.define(exports, 'LeftOperand', class extends Entity {
 
     /**
      * @constructs LeftOperand
- * @extends ODRL
+ * @extends Entity
      * @param {*} param 
      */
     constructor(param) {
@@ -471,10 +470,10 @@ _.define(exports, 'LeftOperand', class extends ODRL {
 
 /**
  * @name EMS.repo.RightOperand
- * @extends ODRL
+ * @extends Entity
  * @class
  */
-_.define(exports, 'RightOperand', class extends ODRL {
+_.define(exports, 'RightOperand', class extends Entity {
 
     /**
      * @constructs RightOperand

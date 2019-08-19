@@ -12,7 +12,7 @@ console.log(EMS);
 // current output:
 // 
 // {
-//   enforce: {},
+//   enforce: [Function],
 //   execute: {},
 //   info: {},
 //   admin: {},
