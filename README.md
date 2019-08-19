@@ -13,7 +13,7 @@ console.log(EMS);
 // 
 // {
 //   enforce: [Function],
-//   execute: {},
+//   exec: {},
 //   info: {},
 //   admin: {},
 //   decide: {},
