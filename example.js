@@ -1,4 +1,4 @@
-const EMS = require("./EMS");
+const EMS = require("./src");
 
 EMS.repo.connect("localhost", "neo4j", "neo4j");
 
