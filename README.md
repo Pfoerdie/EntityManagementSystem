@@ -1,5 +1,10 @@
-# EntityManagementSystem (EMS)
+# EMS (Entity Management System)
+
+
+## example.js
 
 ```javascript
-const EMS = require("EntityManagementSystem");
+const EMS = require("EMS");
+
+console.log(EMS);
 ```
