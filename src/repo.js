@@ -7,9 +7,8 @@
 
 const
     Neo4j = require('neo4j-driver').v1,
-    EventEmitter = require('events'),
     _ = require("./tools.js"),
-    _module = require("./module.js");
+    _queries = require("./cypher.js");
 
 /**
  * @name _driver
@@ -40,20 +39,12 @@ _.enumerate(exports, 'wipeData', async function (confirm = false) {
 });
 
 /**
- * @name _uids
- * @type {Mapy<string, Entity>}
- * @private
- */
-const _UIDs = new Map();
-
-/**
  * @name Entity
- * @extends EventEmitter
  * @class
  * @private
  * @abstract
  */
-class Entity extends EventEmitter {
+class Entity {
 
     /**
      * @constructs Entity
@@ -61,65 +52,39 @@ class Entity extends EventEmitter {
      */
     constructor(param) {
         _.assert(new.target != Entity);
-        _.assert.object(param);
-        super();
-        _.define(this, '_param', param);
-        if (param.uid && _.is.string(param.uid)) {
-            _.assert(!_UIDs.has(param.uid));
-            _UIDs.set(param.uid, this);
-        }
-        _.set(this, '_ts', Date.now());
-        _.set(this, '_cleared', false);
+        _.assert(_.is.object(param) && _.is.string(param.uid));
+        Object.assign(this, param);
+        this._touch();
     }
 
     /**
      * @name Entity#_touch
-     * @returns {boolean}
+     * @returns {undefined}
      * @private
      */
     _touch() {
-        if (this._cleared) return false;
         _.set(this, '_ts', Date.now());
-        return true;
     }
 
     /**
-     * @name Entity#_clear
-     * @param {function} clearedCB
-     * @returns {boolean}
-     * @private
+     * @name Entity._find
+     * @param {*} param 
+     * @returns {Entity}
      */
-    _clear(clearedCB) {
-        _.assert(!this._cleared);
-        let cancel = false;
-        this.emit('clear', () => { cancel = true });
-        if (cancel) return false; // cancel because clearing was aborted
-        if (_.is.function(clearedCB)) clearedCB();
-        _UIDs.delete(this._param.uid);
-        this.removeAllListeners();
-        _.set(this, '_cleared', true);
-        this.emit('cleared');
-        return true;
+    static async _find(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type));
+        let result = await _requestNeo4j(_query.find);
+        console.log(result);
+        // TODO
     }
 
     /**
-     * @name Entity#_expire
-     * @param {number} [ms=0]
+     * @name Entity._find
+     * @param {*} param 
      * @returns {boolean}
-     * @private
      */
-    _expire(ms = 0) {
-        _.assert(!this._cleared);
-        _.assert.number(ms);
-        let expires = this._ts + ms;
-        _.set(this, '_expires', expires); // to know if expire got called another time
-        if (ms <= 0) return false;
-        let timeout = setTimeout(() => {
-            if (this._expires != expires) return; // cancel because expire got called in the meantime
-            if (expires > Date.now() || !this._clear(() => this.emit('expired'))) this._expire(ms); // refresh expire if touched in the meantime or clearing was unsuccessful
-        }, expires + 1e3 - Date.now()); // add 1 sec for good measure
-        this.on('cleared', () => clearTimeout(timeout));
-        return true;
+    static async _delete(uid) {
+        // TODO
     }
 
 }
