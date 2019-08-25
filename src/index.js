@@ -1,4 +1,4 @@
-const _module = require("./module.js");
+const _module = require("./modules");
 // exports.enforce = Object.assign({}, _module.enforce);
 exports.enforce = (...args) => _module.enforce(...args);
 exports.exec = Object.assign({}, _module.exec);

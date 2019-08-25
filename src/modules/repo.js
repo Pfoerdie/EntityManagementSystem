@@ -7,8 +7,8 @@
 
 const
     Neo4j = require('neo4j-driver').v1,
-    _ = require("./tools.js"),
-    _queries = require("./cypher.js");
+    _ = require("../tools"),
+    _queries = require("../cypher");
 
 /**
  * @name _driver

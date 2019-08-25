@@ -4,8 +4,8 @@
  */
 
 const
-    _ = require("./tools.js"),
-    _module = require("./module.js");
+    _ = require("../tools"),
+    _module = require(".");
 
 /** 
  * @name EMS.enforce
