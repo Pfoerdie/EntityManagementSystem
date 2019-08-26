@@ -2,7 +2,7 @@
  * @module EMS.repo
  * @author Simon Petrac
  * 
- * {@link https://www.w3.org/TR/odrl-model/#infoModel Entity Information Model}
+ * {@link https://www.w3.org/TR/odrl-model/#infoModel Param Information Model}
  */
 
 const
@@ -39,47 +39,27 @@ _.enumerate(exports, 'wipeData', async function (confirm = false) {
 });
 
 /**
- * @name Entity
+ * @name EMS.repo.Param
  * @class
  * @private
  * @abstract
  */
-class Entity {
+_.define(exports, 'Param', class {
 
     /**
-     * @constructs Entity
+     * @name Param._find
      * @param {*} param 
-     */
-    constructor(param) {
-        _.assert(new.target != Entity);
-        _.assert(_.is.object(param) && _.is.string(param.uid));
-        Object.assign(this, param);
-        this._touch();
-    }
-
-    /**
-     * @name Entity#_touch
-     * @returns {undefined}
-     * @private
-     */
-    _touch() {
-        _.set(this, '_ts', Date.now());
-    }
-
-    /**
-     * @name Entity._find
-     * @param {*} param 
-     * @returns {Entity}
+     * @returns {Param}
      */
     static async _find(param) {
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type));
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query.find);
         console.log(result);
         // TODO
     }
 
     /**
-     * @name Entity._find
+     * @name Param._find
      * @param {*} param 
      * @returns {boolean}
      */
@@ -87,14 +67,35 @@ class Entity {
         // TODO
     }
 
-}
+    /**
+     * @constructs Param
+     * @param {*} param 
+     */
+    constructor(param) {
+        _.assert(new.target != exports.Param, "Param is an abstract class");
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid construction parameter");
+        Object.assign(this, param);
+        this._touch();
+    }
+
+    /**
+     * @name Param#_touch
+     * @returns {undefined}
+     * @private
+     */
+    _touch() {
+        _.set(this, '_ts', Date.now());
+    }
+
+});
+
 
 /**
  * @name EMS.repo.Asset
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Asset', class extends Entity {
+_.define(exports, 'Asset', class extends exports.Param {
 
     /**
      * @constructs Asset
@@ -110,7 +111,7 @@ _.define(exports, 'Asset', class extends Entity {
 
 /**
  * @name EMS.repo.AssetCollection
- * @extends Asset
+ * @extends EMS.repo.Asset
  * @class
  */
 _.define(exports, 'AssetCollection', class extends exports.Asset {
@@ -129,10 +130,10 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
 
 /**
  * @name EMS.repo.Party
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Party', class extends Entity {
+_.define(exports, 'Party', class extends exports.Param {
 
     /**
      * @constructs Party
@@ -148,7 +149,7 @@ _.define(exports, 'Party', class extends Entity {
 
 /**
  * @name EMS.repo.PartyCollection
- * @extends Party
+ * @extends EMS.repo.Party
  * @class
  */
 _.define(exports, 'PartyCollection', class extends exports.Party {
@@ -167,10 +168,10 @@ _.define(exports, 'PartyCollection', class extends exports.Party {
 
 /**
  * @name EMS.repo.Action
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Action', class extends Entity {
+_.define(exports, 'Action', class extends exports.Param {
 
     /**
      * @constructs Action
@@ -186,10 +187,10 @@ _.define(exports, 'Action', class extends Entity {
 
 /**
  * @name EMS.repo.Policy
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Policy', class extends Entity {
+_.define(exports, 'Policy', class extends exports.Param {
 
     /**
      * @constructs Policy
@@ -206,7 +207,7 @@ _.define(exports, 'Policy', class extends Entity {
 
 /**
  * @name EMS.repo.Set
- * @extends Policy
+ * @extends EMS.repo.Policy
  * @class
  */
 _.define(exports, 'Set', class extends exports.Policy {
@@ -225,7 +226,7 @@ _.define(exports, 'Set', class extends exports.Policy {
 
 /**
  * @name EMS.repo.Offer
- * @extends Policy
+ * @extends EMS.repo.Policy
  * @class
  */
 _.define(exports, 'Offer', class extends exports.Policy {
@@ -244,7 +245,7 @@ _.define(exports, 'Offer', class extends exports.Policy {
 
 /**
  * @name EMS.repo.Agreement
- * @extends Policy
+ * @extends EMS.repo.Policy
  * @class
  */
 _.define(exports, 'Agreement', class extends exports.Policy {
@@ -263,10 +264,10 @@ _.define(exports, 'Agreement', class extends exports.Policy {
 
 /**
  * @name EMS.repo.ConflictTerm
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'ConflictTerm', class extends Entity {
+_.define(exports, 'ConflictTerm', class extends exports.Param {
 
     /**
      * @constructs ConflictTerm
@@ -282,10 +283,10 @@ _.define(exports, 'ConflictTerm', class extends Entity {
 
 /**
  * @name EMS.repo.Rule
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Rule', class extends Entity {
+_.define(exports, 'Rule', class extends exports.Param {
 
     /**
      * @constructs Rule
@@ -302,7 +303,7 @@ _.define(exports, 'Rule', class extends Entity {
 
 /**
  * @name EMS.repo.Permission
- * @extends Rule
+ * @extends EMS.repo.Rule
  * @class
  */
 _.define(exports, 'Permission', class extends exports.Rule {
@@ -321,7 +322,7 @@ _.define(exports, 'Permission', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Prohibition
- * @extends Rule
+ * @extends EMS.repo.Rule
  * @class
  */
 _.define(exports, 'Prohibition', class extends exports.Rule {
@@ -340,7 +341,7 @@ _.define(exports, 'Prohibition', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Duty
- * @extends Rule
+ * @extends EMS.repo.Rule
  * @class
  */
 _.define(exports, 'Duty', class extends exports.Rule {
@@ -359,10 +360,10 @@ _.define(exports, 'Duty', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Contraint
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Contraint', class extends Entity {
+_.define(exports, 'Contraint', class extends exports.Param {
 
     /**
      * @constructs Contraint
@@ -378,10 +379,10 @@ _.define(exports, 'Contraint', class extends Entity {
 
 /**
  * @name EMS.repo.LogicalContraint
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'LogicalContraint', class extends Entity {
+_.define(exports, 'LogicalContraint', class extends exports.Param {
 
     /**
      * @constructs LogicalContraint
@@ -397,10 +398,10 @@ _.define(exports, 'LogicalContraint', class extends Entity {
 
 /**
  * @name EMS.repo.Operator
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Operator', class extends Entity {
+_.define(exports, 'Operator', class extends exports.Param {
 
     /**
      * @constructs Operator
@@ -418,11 +419,11 @@ _.define(exports, 'Operator', class extends Entity {
  * @name EMS.repo.LeftOperand
  * @class
  */
-_.define(exports, 'LeftOperand', class extends Entity {
+_.define(exports, 'LeftOperand', class extends exports.Param {
 
     /**
      * @constructs LeftOperand
- * @extends Entity
+ * @extends EMS.repo.Param
      * @param {*} param 
      */
     constructor(param) {
@@ -435,10 +436,10 @@ _.define(exports, 'LeftOperand', class extends Entity {
 
 /**
  * @name EMS.repo.RightOperand
- * @extends Entity
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'RightOperand', class extends Entity {
+_.define(exports, 'RightOperand', class extends exports.Param {
 
     /**
      * @constructs RightOperand

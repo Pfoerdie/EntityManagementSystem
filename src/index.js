@@ -1,6 +1,5 @@
 const _module = require("./modules");
-// exports.enforce = Object.assign({}, _module.enforce);
-exports.enforce = (...args) => _module.enforce(...args);
+exports.enforce = Object.assign({}, _module.enforce);
 exports.exec = Object.assign({}, _module.exec);
 exports.info = Object.assign({}, _module.info);
 exports.admin = Object.assign({}, _module.admin);

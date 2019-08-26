@@ -8,11 +8,12 @@ const
     _module = require(".");
 
 /** 
- * @name EMS.enforce
+ * @name EMS.enforce.request
  * @returns {*}
  * @function
  * @public
+ * @async
  */
-_.define(module, 'exports', function () {
-
+_.enumerate(exports, "request", function async() {
+    // TODO
 });

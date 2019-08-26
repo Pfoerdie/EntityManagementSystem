@@ -1,5 +1,4 @@
 const _ = require(".");
-module.exports = assert;
 
 function assert(value, errMsg, errType = Error) {
     if (!value) {
@@ -24,3 +23,5 @@ assert.function = function (value, errMsg) {
 assert.object = function (value, errMsg) {
     return exports.assert(_.is.object(value), errMsg, TypeError);
 }
+
+module.exports = assert;
