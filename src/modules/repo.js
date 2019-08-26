@@ -47,11 +47,12 @@ _.enumerate(exports, 'wipeData', async function (confirm = false) {
 _.define(exports, 'Param', class {
 
     /**
-     * @name Param._find
+     * @name Param.find
      * @param {*} param 
      * @returns {Param}
+     * @async
      */
-    static async _find(param) {
+    static async find(param) {
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query.find);
         console.log(result);
@@ -59,11 +60,15 @@ _.define(exports, 'Param', class {
     }
 
     /**
-     * @name Param._find
+     * @name Param.create
      * @param {*} param 
-     * @returns {boolean}
+     * @returns {Param}
+     * @async
      */
-    static async _delete(uid) {
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
+        let result = await _requestNeo4j(_query.find);
+        console.log(result);
         // TODO
     }
 
@@ -85,6 +90,24 @@ _.define(exports, 'Param', class {
      */
     _touch() {
         _.set(this, '_ts', Date.now());
+    }
+
+    /**
+     * @name Param#update
+     * @returns {boolean}
+     * @async
+     */
+    async update() {
+        // TODO
+    }
+
+    /**
+     * @name Param#delete
+     * @returns {boolean}
+     * @async
+     */
+    async delete() {
+        // TODO
     }
 
 });
