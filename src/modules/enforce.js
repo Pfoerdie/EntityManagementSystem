@@ -4,6 +4,7 @@
  */
 
 const
+    Express = require('express'),
     _ = require("../tools"),
     _module = require(".");
 
@@ -17,3 +18,10 @@ const
 _.enumerate(exports, "request", function async() {
     // TODO
 });
+
+/** 
+ * @name EMS.enforce.express
+ * @type {Express~Router}
+ * @public
+ */
+_.enumerate(exports, "express", Express.Router());

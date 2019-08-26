@@ -5,4 +5,4 @@ console.log(EMS);
 // console.log(_module);
 
 EMS.repo.connect("localhost", "neo4j", "odrl");
-EMS.repo.ping().then(console.log).catch(console.error);
+// EMS.repo.ping().then(console.log).catch(console.error);
