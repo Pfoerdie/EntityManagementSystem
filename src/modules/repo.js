@@ -31,6 +31,26 @@ _.enumerate(exports, 'connect', function (hostname = "localhost", username = "ne
     _driver = Neo4j.driver("bolt://" + hostname, Neo4j.auth.basic(username, password));
 });
 
+/** 
+ * @name EMS.repo.ping
+ * @returns {Neo4j~ServerInfo}
+ * @function
+ * @async
+ * @public
+ */
+_.enumerate(exports, 'ping', async function () {
+    _.assert(_driver, "not connected");
+    let session = _driver.session();
+    try {
+        let result = await session.run("RETURN null");
+        session.close();
+        return result.summary.server;
+    } catch (err) {
+        session.close();
+        throw err;
+    }
+});
+
 _.enumerate(exports, 'wipeData', async function (confirm = false) {
     // TODO temporary - remove after testing
     _.assert(!confirm, "not confirmed");

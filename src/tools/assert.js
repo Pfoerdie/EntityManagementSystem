@@ -2,8 +2,11 @@ const _ = require(".");
 
 function assert(value, errMsg, errType = Error) {
     if (!value) {
-        let err = errMsg instanceof Error ? errMsg : new errType(errMsg);
-        Error.captureStackTrace(err, assert);
+        let err = (errMsg instanceof Error) ? errMsg : null;
+        if (!err) {
+            err = new errType(errMsg);
+            Error.captureStackTrace(err, assert);
+        }
         throw err;
     }
 }
