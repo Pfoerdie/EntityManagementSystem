@@ -78,18 +78,18 @@ _.define(exports, 'Param', class {
      */
     constructor(param) {
         _.assert(new.target != exports.Param, "Param is an abstract class");
-        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid construction parameter");
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
         Object.assign(this, param);
-        this._touch();
     }
 
     /**
-     * @name Param#_touch
-     * @returns {undefined}
-     * @private
+     * @name Param#construct
+     * @param {*} param 
+     * @returns {Param}
      */
-    _touch() {
-        _.set(this, '_ts', Date.now());
+    construct(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
+        // TODO
     }
 
     /**
@@ -477,9 +477,23 @@ _.define(exports, 'RightOperand', class extends exports.Param {
 });
 
 /**
+ * @name Record
+ * @param {Neo4j~Record} record 
+ * @constructor
+ * @private
+ */
+function Record(record) {
+    _.assert(new.target === Record, "Record is a constructor");
+    for (let key of record['keys']) {
+        _.enumerate(this, key, record['_fields'][record['_fieldLookup'][key]]);
+    }
+}
+
+/**
  * @function _requestNeo4j
  * @param {string|string[]} query 
  * @param {Object} [param=null]
+ * @returns {Array<Record>|Array<Array<Record>>}
  * @private
  */
 async function _requestNeo4j(query, param = null) {
@@ -507,14 +521,15 @@ async function _requestNeo4j(query, param = null) {
 }
 
 /**
- * @name Record
- * @param {Neo4j~Record} record 
- * @constructor
+ * @function _findRequest
+ * @returns {Array<Param>}
  * @private
  */
-function Record(record) {
-    _.assert(new.target === Record, "Record is a constructor");
-    for (let key of record['keys']) {
-        _.enumerate(this, key, record['_fields'][record['_fieldLookup'][key]]);
-    }
+async function _findRequest(action, target, assignee = null, assigner = null) {
+    _.assert(_driver, "not connected");
+    _.assert(_.is.string(action), "invalid action");
+    _.assert(_.is.string(target) || _.is.object(target), "invalid target");
+    _.assert(assignee === null || _.is.string(assignee), "invalid assignee");
+    _.assert(assigner === null || _.is.string(assigner), "invalid assigner");
+    // TODO
 }
