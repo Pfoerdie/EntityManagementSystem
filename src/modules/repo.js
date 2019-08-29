@@ -73,11 +73,10 @@ _.define(exports, 'Param', class {
      * @async
      */
     static async find(param) {
-        _.assert(false, "not implemented");
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
-        let result = await _requestNeo4j(_query.find);
-        console.log(result);
-        // TODO
+        _.assert(_.is.object(param) && Object.keys(param).length > 0, "no search parameter");
+        let result = await _requestNeo4j(_query.find, { param });
+        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
+        return result[0];
     }
 
     /**
@@ -141,6 +140,12 @@ _.define(exports, 'Param', class {
  * @class
  */
 _.define(exports, 'Asset', class extends exports.Param {
+
+    static async find(param) {
+        let result = await exports.Param.find(param);
+        _.assert(result.labels.includes("Asset"), "invalid data");
+        return new exports.Asset(result.param);
+    }
 
     static async create(param) {
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");

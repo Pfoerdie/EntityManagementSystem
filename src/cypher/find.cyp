@@ -1,21 +1,27 @@
 MATCH 
-    (entity:ODRL {uid: $uid, type: $type})
+    (entity:ODRL)
+WHERE 
+    all(
+        key IN keys($param) |
+        entity[key] = $param[key]
+    )
 OPTIONAL MATCH 
     (entity)-[rel]->(:ODRL)
 WITH 
     collect(rel) AS rels, 
     collect(type(rel)) AS relTypes, 
-    labels(entity) AS types, 
-    properties(entity) AS param
+    properties(entity) AS result
 FOREACH (
     type IN relTypes | 
-    SET param[type] = []
+    SET result[type] = []
 )
 FOREACH (
     rel IN rels | 
-    WITH param[type(rel)] AS list 
+    WITH result[type(rel)] AS list 
     SET list[size(list)] = endNode(rel).uid
 )
 RETURN 
-    param, 
-    types
+    result AS param,
+    labels(entity) AS labels,
+LIMIT
+    2
