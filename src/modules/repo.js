@@ -73,6 +73,7 @@ _.define(exports, 'Param', class {
      * @async
      */
     static async find(param) {
+        _.assert(false, "not implemented");
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query.find);
         console.log(result);
@@ -86,6 +87,7 @@ _.define(exports, 'Param', class {
      * @async
      */
     static async create(param) {
+        _.assert(false, "not implemented");
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query.find);
         console.log(result);
@@ -118,7 +120,7 @@ _.define(exports, 'Param', class {
      * @async
      */
     async update() {
-        // TODO
+        _.assert(false, "not implemented");
     }
 
     /**
@@ -139,6 +141,13 @@ _.define(exports, 'Param', class {
  * @class
  */
 _.define(exports, 'Asset', class extends exports.Param {
+
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
+        let result = await _requestNeo4j(_query.find);
+        console.log(result);
+        // TODO
+    }
 
     /**
      * @constructs Asset

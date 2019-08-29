@@ -36,6 +36,10 @@ _.define(exports, "Entity", class {
         _.define(this, 'param', param);
     }
 
+    async update() {
+        // TODO update the Asset/Party/etc param
+    }
+
     /**
      * @name Entity#toJSON
      * @returns {JSON}
@@ -66,13 +70,14 @@ _.enumerate(exports, "File", class extends exports.Entity {
         _.assert.string(param.path, "invalid path parameter");
     }
 
-    read() {
-        return _.promify(Fs.readFile, this.param.path);
+    async read() {
+        let buffer = await _.promify(Fs.readFile, this.param.path);
+        return buffer;
     }
 
-    write(buffer) {
+    async write(buffer) {
         _.assert(buffer instanceof Buffer, "use a Buffer for write operations");
-        return _.promify(Fs.writeFile, this.param.path);
+        await _.promify(Fs.writeFile, this.param.path, buffer);
     }
 
 });
