@@ -73,7 +73,7 @@ _.define(exports, 'Param', class {
      * @async
      */
     static async find(param) {
-        _.assert(_.is.object(param) && Object.keys(param).length > 0, "no search parameter");
+        _.assert(_.is.object(param) && _.is.string(param.type), "no search parameter");
         let result = await _requestNeo4j(_query.find, { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
         return result[0];
