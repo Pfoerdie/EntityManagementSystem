@@ -1,5 +1,5 @@
 MATCH 
-    (entity:ODRL)
+    (entity:ODRL:Party)
 WHERE 
     all(
         key IN keys($param) |
@@ -21,7 +21,6 @@ FOREACH (
     SET list[size(list)] = endNode(rel).uid
 )
 RETURN 
-    result AS param,
-    labels(entity) AS labels,
+    result AS param
 LIMIT
     2

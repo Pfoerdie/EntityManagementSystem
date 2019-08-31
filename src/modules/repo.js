@@ -67,33 +67,6 @@ _.enumerate(exports, 'wipeData', async function (confirm = false) {
 _.define(exports, 'Param', class {
 
     /**
-     * @name Param.find
-     * @param {*} param 
-     * @returns {*}
-     * @async
-     */
-    static async find(param) {
-        _.assert(this !== Param, "Param.find is an interface method");
-        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
-        let result = await _requestNeo4j(_query.find, { param });
-        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return result[0];
-    }
-
-    /**
-     * @name Param.create
-     * @param {*} param 
-     * @returns {*}
-     * @async
-     */
-    static async create(param) {
-        _.assert(this !== Param, "Param.create is an interface method");
-        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
-        if (!_.is.string(param.uid)) _.enumerate(param, "uid", _.uuid());
-        return param;
-    }
-
-    /**
      * @constructs Param
      * @param {*} param 
      */
@@ -101,34 +74,6 @@ _.define(exports, 'Param', class {
         _.assert(new.target != exports.Param, "Param is an abstract class");
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
         Object.assign(this, param);
-    }
-
-    /**
-     * @name Param#construct
-     * @param {*} param 
-     * @returns {Param}
-     */
-    construct(param) {
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
-        // TODO
-    }
-
-    /**
-     * @name Param#update
-     * @returns {boolean}
-     * @async
-     */
-    async update() {
-        _.assert(false, "not implemented");
-    }
-
-    /**
-     * @name Param#delete
-     * @returns {boolean}
-     * @async
-     */
-    async delete() {
-        // TODO
     }
 
 });
@@ -143,21 +88,26 @@ _.define(exports, 'Asset', class extends exports.Param {
 
     /**
      * @name Asset.find
+     * @param {{type: string, ...*}} param 
      * @returns {Asset}
+     * @async
      */
     static async find(param) {
-        let result = await exports.Param.find.call(this, param);
-        _.assert(result.labels.includes("Asset"), "invalid data");
-        return new exports.Asset(result.param);
+        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        let result = await _requestNeo4j(_query["Asset.find"], { param });
+        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
+        return new exports.Asset(result[0].param);
     }
 
     /**
      * @name Asset.create
+     * @param {{type: string, uid: string, ...*}} param 
      * @returns {Asset}
+     * @async
      */
     static async create(param) {
-        exports.Param.create.call(this, param);
-        await _requestNeo4j(_query.createAsset, { param });
+        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
+        await _requestNeo4j(_query["Asset.create"], { param });
         return await exports.Asset.find(param);
     }
 
@@ -169,6 +119,26 @@ _.define(exports, 'Asset', class extends exports.Param {
         _.assert(param);
         throw new Error("not implemented jet");
         super(param);
+    }
+
+    /**
+     * @name Asset#update
+     * @returns {boolean}
+     * @async
+     */
+    async update() {
+        _.assert(false, "not implemented");
+        // TODO
+    }
+
+    /**
+     * @name Asset#delete
+     * @returns {boolean}
+     * @async
+     */
+    async delete() {
+        _.assert(false, "not implemented");
+        // TODO
     }
 
 });
@@ -200,6 +170,31 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
 _.define(exports, 'Party', class extends exports.Param {
 
     /**
+     * @name Party.find
+     * @param {{type: string, ...*}} param 
+     * @returns {Party}
+     * @async
+     */
+    static async find(param) {
+        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        let result = await _requestNeo4j(_query["Asset.find"], { param });
+        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
+        return new exports.Party(result[0].param);
+    }
+
+    /**
+     * @name Party.create
+     * @param {{type: string, uid: string, ...*}} param 
+     * @returns {Party}
+     * @async
+     */
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
+        await _requestNeo4j(_query["Party.create"], { param });
+        return await exports.Party.find(param);
+    }
+
+    /**
      * @constructs Party
      * @param {*} param 
      */
@@ -207,6 +202,26 @@ _.define(exports, 'Party', class extends exports.Param {
         _.assert(param);
         throw new Error("not implemented jet");
         super(param);
+    }
+
+    /**
+     * @name Party#update
+     * @returns {boolean}
+     * @async
+     */
+    async update() {
+        _.assert(false, "not implemented");
+        // TODO
+    }
+
+    /**
+     * @name Party#delete
+     * @returns {boolean}
+     * @async
+     */
+    async delete() {
+        _.assert(false, "not implemented");
+        // TODO
     }
 
 });
