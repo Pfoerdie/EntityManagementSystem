@@ -69,10 +69,11 @@ _.define(exports, 'Param', class {
     /**
      * @name Param.find
      * @param {*} param 
-     * @returns {Param}
+     * @returns {*}
      * @async
      */
     static async find(param) {
+        _.assert(this !== Param, "Param.find is an interface method");
         _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query.find, { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
@@ -82,15 +83,14 @@ _.define(exports, 'Param', class {
     /**
      * @name Param.create
      * @param {*} param 
-     * @returns {Param}
+     * @returns {*}
      * @async
      */
     static async create(param) {
-        _.assert(false, "not implemented");
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
-        let result = await _requestNeo4j(_query.find);
-        console.log(result);
-        // TODO
+        _.assert(this !== Param, "Param.create is an interface method");
+        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        if (!_.is.string(param.uid)) _.enumerate(param, "uid", _.uuid());
+        return param;
     }
 
     /**
@@ -141,17 +141,24 @@ _.define(exports, 'Param', class {
  */
 _.define(exports, 'Asset', class extends exports.Param {
 
+    /**
+     * @name Asset.find
+     * @returns {Asset}
+     */
     static async find(param) {
-        let result = await exports.Param.find(param);
+        let result = await exports.Param.find.call(this, param);
         _.assert(result.labels.includes("Asset"), "invalid data");
         return new exports.Asset(result.param);
     }
 
+    /**
+     * @name Asset.create
+     * @returns {Asset}
+     */
     static async create(param) {
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid search parameter");
-        let result = await _requestNeo4j(_query.find);
-        console.log(result);
-        // TODO
+        exports.Param.create.call(this, param);
+        await _requestNeo4j(_query.createAsset, { param });
+        return await exports.Asset.find(param);
     }
 
     /**
