@@ -82,6 +82,19 @@ _.enumerate(exports, "File", class extends exports.Entity {
 
 });
 
+_.enumerate(exports, "Collection", class extends exports.Entity {
+
+    static get name() {
+        return "Collection";
+    }
+
+    constructor(param) {
+        super(param);
+        _.assert(param instanceof _module.repo.AssetCollection, "invalid parameter class");
+    }
+
+});
+
 _.enumerate(exports, "User", class extends exports.Entity {
 
     static get name() {
@@ -101,6 +114,19 @@ _.enumerate(exports, "User", class extends exports.Entity {
 
     async setPassword() {
         // TODO
+    }
+
+});
+
+_.enumerate(exports, "Group", class extends exports.Entity {
+
+    static get name() {
+        return "Group";
+    }
+
+    constructor(param) {
+        super(param);
+        _.assert(param instanceof _module.repo.PartyCollection, "invalid parameter class");
     }
 
 });

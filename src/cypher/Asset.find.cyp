@@ -1,26 +1,25 @@
-MATCH 
+MATCH
     (entity:ODRL:Asset)
-WHERE 
+WHERE
     all(
-        key IN keys($param) |
-        entity[key] = $param[key]
+        key IN keys($param)
+        WHERE entity[key] = $param[key]
     )
+    AND NOT entity:blank
+
 OPTIONAL MATCH 
-    (entity)-[rel]->(:ODRL)
-WITH 
-    collect(rel) AS rels, 
-    collect(type(rel)) AS relTypes, 
-    properties(entity) AS result
-FOREACH (
-    type IN relTypes | 
-    SET result[type] = []
-)
-FOREACH (
-    rel IN rels | 
-    WITH result[type(rel)] AS list 
-    SET list[size(list)] = endNode(rel).uid
-)
-RETURN 
-    result AS param
-LIMIT
-    2
+    (entity)-[:partOf*]->(partOf:ODRL:AssetCollection),
+    (entity)-[:hasPolicy]->(hasPolicy:ODRL:Policy)
+
+WITH
+    properties(entity) AS param,
+    [entry IN collect(DISTINCT partOf) WHERE NOT entry:blank | entry.uid] AS rel0,
+    [entry IN collect(DISTINCT hasPolicy) WHERE NOT entry:blank | entry.uid] AS rel1
+
+RETURN
+    param,
+    {
+        partOf: rel0,
+        hasPolicy: rel1
+    } AS rels
+LIMIT 2

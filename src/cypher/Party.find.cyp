@@ -2,25 +2,21 @@ MATCH
     (entity:ODRL:Party)
 WHERE 
     all(
-        key IN keys($param) |
-        entity[key] = $param[key]
+        key IN keys($param) 
+        WHERE entity[key] = $param[key]
     )
+    AND NOT entity:blank
+
 OPTIONAL MATCH 
-    (entity)-[rel]->(:ODRL)
+    (entity)-[:partOf*]->(partOf:ODRL:PartyCollection)
+
 WITH 
-    collect(rel) AS rels, 
-    collect(type(rel)) AS relTypes, 
-    properties(entity) AS result
-FOREACH (
-    type IN relTypes | 
-    SET result[type] = []
-)
-FOREACH (
-    rel IN rels | 
-    WITH result[type(rel)] AS list 
-    SET list[size(list)] = endNode(rel).uid
-)
-RETURN 
-    result AS param
-LIMIT
-    2
+    properties(entity) AS param,
+    [entry IN collect(DISTINCT partOf) WHERE NOT entry:blank | entry.uid] AS rel0
+
+RETURN
+    param,
+    {
+        partOf: rel0
+    } AS rels
+LIMIT 2

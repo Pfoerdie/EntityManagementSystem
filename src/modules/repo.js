@@ -8,7 +8,7 @@
 const
     Neo4j = require('neo4j-driver').v1,
     _ = require("../tools"),
-    _queries = require("../cypher");
+    _query = require("../cypher");
 
 /**
  * @name _driver
@@ -96,18 +96,20 @@ _.define(exports, 'Asset', class extends exports.Param {
         _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
         let result = await _requestNeo4j(_query["Asset.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.Asset(result[0].param);
+        return new exports.Asset(result[0].param, result[0].rels);
     }
 
     /**
      * @name Asset.create
      * @param {{type: string, uid: string, ...*}} param 
+     * @param {Object<Array<string>>} [rels={}]
      * @returns {Asset}
      * @async
      */
-    static async create(param) {
+    static async create(param, rels = {}) {
         _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        await _requestNeo4j(_query["Asset.create"], { param });
+        _.assert(_.is.object(rels) && Object.values(rels).every(val => _.is.array(val) && val.every(_.is.string)));
+        await _requestNeo4j(_query["Asset.create"], { param, rels });
         return await exports.Asset.find(param);
     }
 
@@ -117,7 +119,8 @@ _.define(exports, 'Asset', class extends exports.Param {
      */
     constructor(param) {
         _.assert(param);
-        throw new Error("not implemented jet");
+        // throw new Error("not implemented jet");
+        // TODO
         super(param);
     }
 
@@ -177,20 +180,22 @@ _.define(exports, 'Party', class extends exports.Param {
      */
     static async find(param) {
         _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
-        let result = await _requestNeo4j(_query["Asset.find"], { param });
+        let result = await _requestNeo4j(_query["Party.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.Party(result[0].param);
+        return new exports.Party(result[0].param, result[0].rels);
     }
 
     /**
      * @name Party.create
      * @param {{type: string, uid: string, ...*}} param 
+     * @param {Object<Array<string>>} [rels={}]
      * @returns {Party}
      * @async
      */
-    static async create(param) {
+    static async create(param, rels = {}) {
         _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        await _requestNeo4j(_query["Party.create"], { param });
+        _.assert(_.is.object(rels) && Object.values(rels).every(val => _.is.array(val) && val.every(_.is.string)));
+        await _requestNeo4j(_query["Party.create"], { param, rels });
         return await exports.Party.find(param);
     }
 
@@ -198,9 +203,10 @@ _.define(exports, 'Party', class extends exports.Param {
      * @constructs Party
      * @param {*} param 
      */
-    constructor(param) {
+    constructor(param, rels) {
         _.assert(param);
-        throw new Error("not implemented jet");
+        // throw new Error("not implemented jet");
+        // TODO
         super(param);
     }
 
