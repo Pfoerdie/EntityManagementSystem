@@ -69,11 +69,14 @@ _.define(exports, 'Param', class {
     /**
      * @constructs Param
      * @param {*} param 
+     * @param {Object<Array<string|Param>>} rels 
      */
-    constructor(param) {
+    constructor(param, rels) {
         _.assert(new.target != exports.Param, "Param is an abstract class");
         _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
+        _.assert(_.is.object(rels) && Object.keys(rels).every(key => _.is.array(rels[key]) && rels[key].every(target => _.is.string(target) || target instanceof Param)));
         Object.assign(this, param);
+        Object.entries(rels).forEach(([key, value]) => _.define(this, key, value));
     }
 
 });
@@ -108,7 +111,9 @@ _.define(exports, 'Asset', class extends exports.Param {
      */
     static async create(param, rels = {}) {
         _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        _.assert(_.is.object(rels) && Object.values(rels).every(val => _.is.array(val) && val.every(_.is.string)));
+        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
+        if (rels.partOf) rels.partOf = [];
+        if (rels.hasPolicy) rels.hasPolicy = [];
         await _requestNeo4j(_query["Asset.create"], { param, rels });
         return await exports.Asset.find(param);
     }
@@ -116,12 +121,10 @@ _.define(exports, 'Asset', class extends exports.Param {
     /**
      * @constructs Asset
      * @param {*} param 
+     * @param {*} rels 
      */
-    constructor(param) {
-        _.assert(param);
-        // throw new Error("not implemented jet");
-        // TODO
-        super(param);
+    constructor(param, rels) {
+        super(param, rels);
     }
 
     /**
@@ -194,7 +197,8 @@ _.define(exports, 'Party', class extends exports.Param {
      */
     static async create(param, rels = {}) {
         _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        _.assert(_.is.object(rels) && Object.values(rels).every(val => _.is.array(val) && val.every(_.is.string)));
+        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
+        if (rels.partOf) rels.partOf = [];
         await _requestNeo4j(_query["Party.create"], { param, rels });
         return await exports.Party.find(param);
     }
@@ -202,12 +206,10 @@ _.define(exports, 'Party', class extends exports.Param {
     /**
      * @constructs Party
      * @param {*} param 
+     * @param {*} rels 
      */
     constructor(param, rels) {
-        _.assert(param);
-        // throw new Error("not implemented jet");
-        // TODO
-        super(param);
+        super(param, rels);
     }
 
     /**

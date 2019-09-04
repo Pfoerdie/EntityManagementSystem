@@ -9,27 +9,21 @@ console.log("EMS:", EMS);
 
     await EMS.repo.wipeData();
 
-    console.log("Asset.create:", await _EMS.repo.Asset.create({
+    let testAsset = await _EMS.repo.Asset.create({
         type: "File",
         uid: "hello_world",
         path: "/hello world.txt"
-    }));
+    });
 
-    console.log("Party.create:", await _EMS.repo.Party.create({
+    let testParty = await _EMS.repo.Party.create({
         type: "User",
         uid: "lorem_ipsum",
         username: "test",
         passowrd: "test"
-    }));
+    });
 
-    console.log("Asset.find", await _EMS.repo.Asset.find({
-        type: "File",
-        uid: "hello_world"
-    }));
-
-    console.log("Party.find", await _EMS.repo.Party.find({
-        type: "User",
-        username: "test"
-    }));
+    console.log();
+    console.log("Asset", testAsset, { partOf: testAsset.partOf });
+    console.log("Party", testParty, { partOf: testAsset.partOf });
 
 })().catch(console.error);
