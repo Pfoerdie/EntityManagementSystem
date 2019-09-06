@@ -9,16 +9,20 @@ console.log("EMS:", EMS);
 
     await EMS.repo.wipeData();
 
+    let testAssetCollection = await _EMS.repo.AssetCollection.create({
+        type: "Collection",
+        uid: "test_assets"
+    });
+
     let testAsset = await _EMS.repo.Asset.create({
         type: "File",
         uid: "hello_world",
         path: "/hello world.txt"
-    });
-
-    let testAssetCollection = await _EMS.repo.Asset.create({
-        type: "Collection",
-        uid: "test_assets"
-    });
+    }, {
+            partOf: [
+                "test_assets"
+            ]
+        });
 
     let testParty = await _EMS.repo.Party.create({
         type: "User",

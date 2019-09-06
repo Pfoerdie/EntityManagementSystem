@@ -115,7 +115,7 @@ _.define(exports, 'Asset', class extends exports.Param {
         if (rels.partOf) rels.partOf = [];
         if (rels.hasPolicy) rels.hasPolicy = [];
         await _requestNeo4j(_query["Asset.create"], { param, rels });
-        return await exports.Asset.find({ uid: param.uid });
+        return await exports.Asset.find(param);
     }
 
     /**
@@ -182,17 +182,15 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
         if (rels.partOf) rels.partOf = [];
         if (rels.hasPolicy) rels.hasPolicy = [];
         await _requestNeo4j(_query["AssetCollection.create"], { param, rels });
-        return await exports.AssetCollection.find({ uid: param.uid });
+        return await exports.AssetCollection.find(param);
     }
 
     /**
      * @constructs AssetCollection
      * @param {*} param 
      */
-    constructor(param) {
-        _.assert(param);
-        throw new Error("not implemented jet");
-        super(param);
+    constructor(param, rels) {
+        super(param, rels);
     }
 
 });
@@ -229,7 +227,7 @@ _.define(exports, 'Party', class extends exports.Param {
         _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
         if (rels.partOf) rels.partOf = [];
         await _requestNeo4j(_query["Party.create"], { param, rels });
-        return await exports.Party.find({ uid: param.uid });
+        return await exports.Party.find(param);
     }
 
     /**
