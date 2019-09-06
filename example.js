@@ -15,6 +15,11 @@ console.log("EMS:", EMS);
         path: "/hello world.txt"
     });
 
+    let testAssetCollection = await _EMS.repo.Asset.create({
+        type: "Collection",
+        uid: "test_assets"
+    });
+
     let testParty = await _EMS.repo.Party.create({
         type: "User",
         uid: "lorem_ipsum",
@@ -24,6 +29,7 @@ console.log("EMS:", EMS);
 
     console.log();
     console.log("Asset", testAsset, { partOf: testAsset.partOf });
+    console.log("AssetCollection", testAssetCollection, { partOf: testAssetCollection.partOf });
     console.log("Party", testParty, { partOf: testAsset.partOf });
 
 })().catch(console.error);

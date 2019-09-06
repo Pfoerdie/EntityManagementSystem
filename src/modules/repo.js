@@ -115,7 +115,7 @@ _.define(exports, 'Asset', class extends exports.Param {
         if (rels.partOf) rels.partOf = [];
         if (rels.hasPolicy) rels.hasPolicy = [];
         await _requestNeo4j(_query["Asset.create"], { param, rels });
-        return await exports.Asset.find(param);
+        return await exports.Asset.find({ uid: param.uid });
     }
 
     /**
@@ -155,6 +155,35 @@ _.define(exports, 'Asset', class extends exports.Param {
  * @class
  */
 _.define(exports, 'AssetCollection', class extends exports.Asset {
+
+    /**
+     * @name AssetCollection.find
+     * @param {{type: string, ...*}} param 
+     * @returns {Asset}
+     * @async
+     */
+    static async find(param) {
+        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        let result = await _requestNeo4j(_query["AssetCollection.find"], { param });
+        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
+        return new exports.AssetCollection(result[0].param, result[0].rels);
+    }
+
+    /**
+     * @name AssetCollection.create
+     * @param {{type: string, uid: string, ...*}} param 
+     * @param {Object<Array<string>>} [rels={}]
+     * @returns {AssetCollection}
+     * @async
+     */
+    static async create(param, rels = {}) {
+        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
+        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
+        if (rels.partOf) rels.partOf = [];
+        if (rels.hasPolicy) rels.hasPolicy = [];
+        await _requestNeo4j(_query["AssetCollection.create"], { param, rels });
+        return await exports.AssetCollection.find({ uid: param.uid });
+    }
 
     /**
      * @constructs AssetCollection
@@ -200,7 +229,7 @@ _.define(exports, 'Party', class extends exports.Param {
         _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
         if (rels.partOf) rels.partOf = [];
         await _requestNeo4j(_query["Party.create"], { param, rels });
-        return await exports.Party.find(param);
+        return await exports.Party.find({ uid: param.uid });
     }
 
     /**
