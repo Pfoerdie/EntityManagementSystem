@@ -17,12 +17,14 @@ console.log("EMS:", EMS);
     let testAsset = await _EMS.repo.Asset.create({
         type: "File",
         uid: "hello_world",
-        path: "/hello world.txt"
-    }, {
-            partOf: [
-                "test_assets"
-            ]
-        });
+        path: "/hello world.txt",
+        mimeType: "text/plain"
+    });
+
+    let testPartyCollection = await _EMS.repo.PartyCollection.create({
+        type: "Collection",
+        uid: "test_parties"
+    });
 
     let testParty = await _EMS.repo.Party.create({
         type: "User",
@@ -31,9 +33,7 @@ console.log("EMS:", EMS);
         passowrd: "test"
     });
 
-    console.log();
-    console.log("Asset", testAsset, { partOf: testAsset.partOf });
-    console.log("AssetCollection", testAssetCollection, { partOf: testAssetCollection.partOf });
-    console.log("Party", testParty, { partOf: testAsset.partOf });
+    console.log("Asset", await _EMS.repo.Asset.find({ uid: "hello_world" }));
+    console.log("Party", await _EMS.repo.Party.find({ uid: "lorem_ipsum" }));
 
 })().catch(console.error);

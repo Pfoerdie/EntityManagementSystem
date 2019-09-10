@@ -68,15 +68,13 @@ _.define(exports, 'Param', class {
 
     /**
      * @constructs Param
-     * @param {*} param 
-     * @param {Object<Array<string|Param>>} rels 
+     * @param {Object} param 
      */
-    constructor(param, rels) {
+    constructor(param) {
         _.assert(new.target != exports.Param, "Param is an abstract class");
-        _.assert(_.is.object(param) && _.is.string(param.uid) && _.is.string(param.type), "invalid construction parameter");
-        _.assert(_.is.object(rels) && Object.keys(rels).every(key => _.is.array(rels[key]) && rels[key].every(target => _.is.string(target) || target instanceof Param)));
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid construction parameter");
         Object.assign(this, param);
-        Object.entries(rels).forEach(([key, value]) => _.define(this, key, value));
+        _.enumerate(this, "uid", param.uid);
     }
 
 });
@@ -91,40 +89,39 @@ _.define(exports, 'Asset', class extends exports.Param {
 
     /**
      * @name Asset.find
-     * @param {{type: string, ...*}} param 
+     * @param {{...*}} param 
      * @returns {Asset}
      * @async
      */
     static async find(param) {
-        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        _.assert(_.is.object(param), "invalid search parameter");
         let result = await _requestNeo4j(_query["Asset.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.Asset(result[0].param, result[0].rels);
+        return new exports.Asset(result[0].param, result[0].partOf);
     }
 
     /**
      * @name Asset.create
-     * @param {{type: string, uid: string, ...*}} param 
-     * @param {Object<Array<string>>} [rels={}]
-     * @returns {Asset}
+     * @param {{uid: string, ...*}} param 
+     * @returns {boolean}
      * @async
      */
-    static async create(param, rels = {}) {
-        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
-        if (rels.partOf) rels.partOf = [];
-        if (rels.hasPolicy) rels.hasPolicy = [];
-        await _requestNeo4j(_query["Asset.create"], { param, rels });
-        return await exports.Asset.find(param);
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid creation parameter");
+        let result = await _requestNeo4j(_query["Asset.create"], { param });
+        _.assert(result.length === 1, "nothing created");
+        return result[0].created;
     }
 
     /**
      * @constructs Asset
-     * @param {*} param 
-     * @param {*} rels 
+     * @param {Object} param 
+     * @param {Array<string>} [partOf=[]] 
      */
-    constructor(param, rels) {
-        super(param, rels);
+    constructor(param, partOf = []) {
+        _.assert(_.is.array(partOf) && partOf.every(_.is.string), "invalid creation parameter");
+        super(param);
+        _.define(this, "partOf", partOf);
     }
 
     /**
@@ -158,39 +155,57 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
 
     /**
      * @name AssetCollection.find
-     * @param {{type: string, ...*}} param 
-     * @returns {Asset}
+     * @param {{...*}} param 
+     * @returns {AssetCollection}
      * @async
      */
     static async find(param) {
-        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        _.assert(_.is.object(param), "invalid search parameter");
         let result = await _requestNeo4j(_query["AssetCollection.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.AssetCollection(result[0].param, result[0].rels);
+        return new exports.AssetCollection(result[0].param, result[0].partOf);
     }
 
     /**
      * @name AssetCollection.create
-     * @param {{type: string, uid: string, ...*}} param 
-     * @param {Object<Array<string>>} [rels={}]
-     * @returns {AssetCollection}
+     * @param {{ uid: string, ...*}} param 
+     * @returns {boolean}
      * @async
      */
-    static async create(param, rels = {}) {
-        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
-        if (rels.partOf) rels.partOf = [];
-        if (rels.hasPolicy) rels.hasPolicy = [];
-        await _requestNeo4j(_query["AssetCollection.create"], { param, rels });
-        return await exports.AssetCollection.find(param);
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid creation parameter");
+        let result = await _requestNeo4j(_query["AssetCollection.create"], { param });
+        _.assert(result.length === 1, "nothing created");
+        return result[0].created;
     }
 
     /**
      * @constructs AssetCollection
-     * @param {*} param 
+     * @param {Object} param 
+     * @param {Array<string>} [partOf=[]] 
      */
-    constructor(param, rels) {
-        super(param, rels);
+    constructor(param, partOf = []) {
+        super(param, partOf);
+    }
+
+    /**
+     * @name AssetCollection#update
+     * @returns {boolean}
+     * @async
+     */
+    async update() {
+        _.assert(false, "not implemented");
+        // TODO
+    }
+
+    /**
+     * @name AssetCollection#delete
+     * @returns {boolean}
+     * @async
+     */
+    async delete() {
+        _.assert(false, "not implemented");
+        // TODO
     }
 
 });
@@ -204,39 +219,39 @@ _.define(exports, 'Party', class extends exports.Param {
 
     /**
      * @name Party.find
-     * @param {{type: string, ...*}} param 
+     * @param {{...*}} param 
      * @returns {Party}
      * @async
      */
     static async find(param) {
-        _.assert(_.is.object(param) && _.is.string(param.type), "invalid search parameter");
+        _.assert(_.is.object(param), "invalid search parameter");
         let result = await _requestNeo4j(_query["Party.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.Party(result[0].param, result[0].rels);
+        return new exports.Party(result[0].param, result[0].partOf);
     }
 
     /**
      * @name Party.create
-     * @param {{type: string, uid: string, ...*}} param 
-     * @param {Object<Array<string>>} [rels={}]
-     * @returns {Party}
+     * @param {{uid: string, ...*}} param 
+     * @returns {boolean}
      * @async
      */
-    static async create(param, rels = {}) {
-        _.assert(_.is.object(param) && _.is.string(param.type) && _.is.string(param.uid), "invalid creation parameter");
-        _.assert(_.is.object(rels) && Object.values(rels).every(rel => _.is.array(rel) && rel.every(_.is.string)), "invalid creation relations");
-        if (rels.partOf) rels.partOf = [];
-        await _requestNeo4j(_query["Party.create"], { param, rels });
-        return await exports.Party.find(param);
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid creation parameter");
+        let result = await _requestNeo4j(_query["Party.create"], { param });
+        _.assert(result.length === 1, "nothing created");
+        return result[0].created;
     }
 
     /**
      * @constructs Party
-     * @param {*} param 
-     * @param {*} rels 
+     * @param {Object} param 
+     * @param {Array<string>} [partOf=[]] 
      */
-    constructor(param, rels) {
-        super(param, rels);
+    constructor(param, partOf = []) {
+        _.assert(_.is.array(partOf) && partOf.every(_.is.string), "invalid creation parameter");
+        super(param);
+        _.define(this, "partOf", partOf);
     }
 
     /**
@@ -269,13 +284,58 @@ _.define(exports, 'Party', class extends exports.Param {
 _.define(exports, 'PartyCollection', class extends exports.Party {
 
     /**
-     * @constructs PartyCollection
-     * @param {*} param 
+     * @name PartyCollection.find
+     * @param {{...*}} param 
+     * @returns {AssetCollection}
+     * @async
      */
-    constructor(param) {
-        _.assert(param);
-        throw new Error("not implemented jet");
-        super(param);
+    static async find(param) {
+        _.assert(_.is.object(param), "invalid search parameter");
+        let result = await _requestNeo4j(_query["PartyCollection.find"], { param });
+        _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
+        return new exports.PartyCollection(result[0].param, result[0].partOf);
+    }
+
+    /**
+     * @name PartyCollection.create
+     * @param {{uid: string, ...*}} param 
+     * @returns {boolean}
+     * @async
+     */
+    static async create(param) {
+        _.assert(_.is.object(param) && _.is.string(param.uid), "invalid creation parameter");
+        let result = await _requestNeo4j(_query["PartyCollection.create"], { param });
+        _.assert(result.length === 1, "nothing created");
+        return result[0].created;
+    }
+
+    /**
+     * @constructs PartyCollection
+     * @param {Object} param 
+     * @param {Array<string>} [partOf=[]] 
+     */
+    constructor(param, partOf = []) {
+        super(param, partOf);
+    }
+
+    /**
+     * @name PartyCollection#update
+     * @returns {boolean}
+     * @async
+     */
+    async update() {
+        _.assert(false, "not implemented");
+        // TODO
+    }
+
+    /**
+     * @name PartyCollection#delete
+     * @returns {boolean}
+     * @async
+     */
+    async delete() {
+        _.assert(false, "not implemented");
+        // TODO
     }
 
 });
@@ -289,7 +349,7 @@ _.define(exports, 'Action', class extends exports.Param {
 
     /**
      * @constructs Action
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -308,7 +368,7 @@ _.define(exports, 'Policy', class extends exports.Param {
 
     /**
      * @constructs Policy
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(new.target !== Policy, "Policy is an abstract class.");
@@ -328,7 +388,7 @@ _.define(exports, 'Set', class extends exports.Policy {
 
     /**
      * @constructs Set
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -347,7 +407,7 @@ _.define(exports, 'Offer', class extends exports.Policy {
 
     /**
      * @constructs Offer
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -366,7 +426,7 @@ _.define(exports, 'Agreement', class extends exports.Policy {
 
     /**
      * @constructs Agreement
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -385,7 +445,7 @@ _.define(exports, 'ConflictTerm', class extends exports.Param {
 
     /**
      * @constructs ConflictTerm
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -404,7 +464,7 @@ _.define(exports, 'Rule', class extends exports.Param {
 
     /**
      * @constructs Rule
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(new.target !== Rule, "Rule is an abstract class.");
@@ -424,7 +484,7 @@ _.define(exports, 'Permission', class extends exports.Rule {
 
     /**
      * @constructs Permission
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -443,7 +503,7 @@ _.define(exports, 'Prohibition', class extends exports.Rule {
 
     /**
      * @constructs Prohibition
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -462,7 +522,7 @@ _.define(exports, 'Duty', class extends exports.Rule {
 
     /**
      * @constructs Duty
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -481,7 +541,7 @@ _.define(exports, 'Contraint', class extends exports.Param {
 
     /**
      * @constructs Contraint
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -500,7 +560,7 @@ _.define(exports, 'LogicalContraint', class extends exports.Param {
 
     /**
      * @constructs LogicalContraint
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -519,7 +579,7 @@ _.define(exports, 'Operator', class extends exports.Param {
 
     /**
      * @constructs Operator
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -538,7 +598,7 @@ _.define(exports, 'LeftOperand', class extends exports.Param {
     /**
      * @constructs LeftOperand
  * @extends EMS.repo.Param
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -557,7 +617,7 @@ _.define(exports, 'RightOperand', class extends exports.Param {
 
     /**
      * @constructs RightOperand
-     * @param {*} param 
+     * @param {Object} param 
      */
     constructor(param) {
         _.assert(param);
@@ -583,7 +643,7 @@ function Record(record) {
 /**
  * @function _requestNeo4j
  * @param {string|string[]} query 
- * @param {Object} [param=null]
+ * @param {Object|Object[]} [param=null]
  * @returns {Array<Record>|Array<Array<Record>>}
  * @private
  */
@@ -591,16 +651,22 @@ async function _requestNeo4j(query, param = null) {
     _.assert(_driver, "not connected");
 
     if (Array.isArray(query)) {
-        _.assert(query.every(entry => Array.isArray(entry) && typeof entry[0] === 'string' && (!entry[1] || typeof entry[1] === 'object')));
+        _.assert(query.every(_.is.string));
+        if (Array.isArray(param)) {
+            _.assert(query.length === param.length && param.every(param => param === null || _.is.object(param)));
+        } else {
+            _.assert(param === null || _.is.object(param));
+            param = new Array(query.length).fill(param);
+        }
         let
             session = _driver.session(),
-            result = await Promise.all(query.map(([query, param = null]) => session.run(query, param)));
+            result = await Promise.all(query.map((query, index) => session.run(query, param[index])));
 
         session.close();
         return result.map(result => result['records'].map(record => new Record(record)));
     } else {
-        _.assert(typeof query === 'string');
-        _.assert(typeof param === 'object');
+        _.assert.string(query);
+        _.assert(param === null || _.is.object(param));
 
         let
             session = _driver.session(),
@@ -609,18 +675,4 @@ async function _requestNeo4j(query, param = null) {
         session.close();
         return result['records'].map(record => new Record(record));
     }
-}
-
-/**
- * @function _findRequest
- * @returns {Array<Param>}
- * @private
- */
-async function _findRequest(action, target, assignee = null, assigner = null) {
-    _.assert(_driver, "not connected");
-    _.assert(_.is.string(action), "invalid action");
-    _.assert(_.is.string(target) || _.is.object(target), "invalid target");
-    _.assert(assignee === null || _.is.string(assignee), "invalid assignee");
-    _.assert(assigner === null || _.is.string(assigner), "invalid assigner");
-    // TODO
 }

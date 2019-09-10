@@ -1,5 +1,5 @@
 MATCH 
-    (entity:ODRL:Party)
+    (entity:ODRL:PartyCollection)
 WHERE 
     all(
         key IN keys($param) 

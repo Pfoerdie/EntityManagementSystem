@@ -68,6 +68,7 @@ _.enumerate(exports, "File", class extends exports.Entity {
         super(param);
         _.assert(param instanceof _module.repo.Asset, "invalid parameter class");
         _.assert.string(param.path, "invalid path parameter");
+        _.assert.string(param.mimeType, "invalid mimeType parameter");
     }
 
     async read() {
@@ -90,7 +91,7 @@ _.enumerate(exports, "Collection", class extends exports.Entity {
 
     constructor(param) {
         super(param);
-        _.assert(param instanceof _module.repo.AssetCollection, "invalid parameter class");
+        _.assert((param instanceof _module.repo.AssetCollection) || (param instanceof _module.repo.PartyCollection), "invalid parameter class");
     }
 
 });

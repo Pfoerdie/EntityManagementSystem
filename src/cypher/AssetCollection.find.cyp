@@ -13,13 +13,11 @@ OPTIONAL MATCH
 
 WITH
     properties(entity) AS param,
-    [entry IN collect(DISTINCT partOf) WHERE NOT entry:blank | entry.uid] AS rel0,
-    [entry IN collect(DISTINCT hasPolicy) WHERE NOT entry:blank | entry.uid] AS rel1
+    [entry IN collect(DISTINCT partOf) WHERE NOT entry:blank | entry.uid] AS partOf,
+    [entry IN collect(DISTINCT hasPolicy) WHERE NOT entry:blank | entry.uid] AS hasPolicy
 
 RETURN
     param,
-    {
-        partOf: rel0,
-        hasPolicy: rel1
-    } AS rels
+    partOf,
+    hasPolicy
 LIMIT 2
