@@ -69,10 +69,12 @@ _.define(exports, 'Param', class {
     /**
      * @constructs Param
      * @param {Object} param 
+     * @param {...Array<string|Param>} rels
      */
-    constructor(param) {
+    constructor(param, ...rels) {
         _.assert(new.target != exports.Param, "Param is an abstract class");
         _.assert(_.is.object(param) && _.is.string(param.uid), "invalid construction parameter");
+        _.assert(rels.every(rel => _.is.array(rel) && rel.every(val => _.is.string(val) || val instanceof exports.Param)), "invalid relation parameters");
         Object.assign(this, param);
         _.enumerate(this, "uid", param.uid);
     }
@@ -97,7 +99,7 @@ _.define(exports, 'Asset', class extends exports.Param {
         _.assert(_.is.object(param), "invalid search parameter");
         let result = await _requestNeo4j(_query["Asset.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.Asset(result[0].param, result[0].partOf);
+        return new exports.Asset(result[0].param, result[0].partOf, result[0].hasPolicy);
     }
 
     /**
@@ -117,11 +119,12 @@ _.define(exports, 'Asset', class extends exports.Param {
      * @constructs Asset
      * @param {Object} param 
      * @param {Array<string>} [partOf=[]] 
+     * @param {Array<string>} [hasPolicy=[]] 
      */
-    constructor(param, partOf = []) {
-        _.assert(_.is.array(partOf) && partOf.every(_.is.string), "invalid creation parameter");
-        super(param);
+    constructor(param, partOf = [], hasPolicy = []) {
+        super(param, partOf, hasPolicy);
         _.define(this, "partOf", partOf);
+        _.define(this, "hasPolicy", hasPolicy);
     }
 
     /**
@@ -148,10 +151,10 @@ _.define(exports, 'Asset', class extends exports.Param {
 
 /**
  * @name EMS.repo.AssetCollection
- * @extends EMS.repo.Asset
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'AssetCollection', class extends exports.Asset {
+_.define(exports, 'AssetCollection', class extends exports.Param {
 
     /**
      * @name AssetCollection.find
@@ -163,7 +166,7 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
         _.assert(_.is.object(param), "invalid search parameter");
         let result = await _requestNeo4j(_query["AssetCollection.find"], { param });
         _.assert(result.length === 1, result.length > 1 ? "no unique result" : "nothing found");
-        return new exports.AssetCollection(result[0].param, result[0].partOf);
+        return new exports.AssetCollection(result[0].param, result[0].partOf, result[0].hasPolicy);
     }
 
     /**
@@ -183,9 +186,12 @@ _.define(exports, 'AssetCollection', class extends exports.Asset {
      * @constructs AssetCollection
      * @param {Object} param 
      * @param {Array<string>} [partOf=[]] 
+     * @param {Array<string>} [hasPolicy=[]] 
      */
-    constructor(param, partOf = []) {
-        super(param, partOf);
+    constructor(param, partOf = [], hasPolicy = []) {
+        super(param, partOf, hasPolicy);
+        _.define(this, "partOf", partOf);
+        _.define(this, "hasPolicy", hasPolicy);
     }
 
     /**
@@ -249,8 +255,7 @@ _.define(exports, 'Party', class extends exports.Param {
      * @param {Array<string>} [partOf=[]] 
      */
     constructor(param, partOf = []) {
-        _.assert(_.is.array(partOf) && partOf.every(_.is.string), "invalid creation parameter");
-        super(param);
+        super(param, partOf);
         _.define(this, "partOf", partOf);
     }
 
@@ -278,10 +283,10 @@ _.define(exports, 'Party', class extends exports.Param {
 
 /**
  * @name EMS.repo.PartyCollection
- * @extends EMS.repo.Party
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'PartyCollection', class extends exports.Party {
+_.define(exports, 'PartyCollection', class extends exports.Param {
 
     /**
      * @name PartyCollection.find
@@ -316,6 +321,7 @@ _.define(exports, 'PartyCollection', class extends exports.Party {
      */
     constructor(param, partOf = []) {
         super(param, partOf);
+        _.define(this, "partOf", partOf);
     }
 
     /**
@@ -381,10 +387,10 @@ _.define(exports, 'Policy', class extends exports.Param {
 
 /**
  * @name EMS.repo.Set
- * @extends EMS.repo.Policy
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Set', class extends exports.Policy {
+_.define(exports, 'Set', class extends exports.Param {
 
     /**
      * @constructs Set
@@ -400,10 +406,10 @@ _.define(exports, 'Set', class extends exports.Policy {
 
 /**
  * @name EMS.repo.Offer
- * @extends EMS.repo.Policy
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Offer', class extends exports.Policy {
+_.define(exports, 'Offer', class extends exports.Param {
 
     /**
      * @constructs Offer
@@ -419,10 +425,10 @@ _.define(exports, 'Offer', class extends exports.Policy {
 
 /**
  * @name EMS.repo.Agreement
- * @extends EMS.repo.Policy
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Agreement', class extends exports.Policy {
+_.define(exports, 'Agreement', class extends exports.Param {
 
     /**
      * @constructs Agreement
@@ -477,10 +483,10 @@ _.define(exports, 'Rule', class extends exports.Param {
 
 /**
  * @name EMS.repo.Permission
- * @extends EMS.repo.Rule
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Permission', class extends exports.Rule {
+_.define(exports, 'Permission', class extends exports.Param {
 
     /**
      * @constructs Permission
@@ -496,10 +502,10 @@ _.define(exports, 'Permission', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Prohibition
- * @extends EMS.repo.Rule
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Prohibition', class extends exports.Rule {
+_.define(exports, 'Prohibition', class extends exports.Param {
 
     /**
      * @constructs Prohibition
@@ -515,10 +521,10 @@ _.define(exports, 'Prohibition', class extends exports.Rule {
 
 /**
  * @name EMS.repo.Duty
- * @extends EMS.repo.Rule
+ * @extends EMS.repo.Param
  * @class
  */
-_.define(exports, 'Duty', class extends exports.Rule {
+_.define(exports, 'Duty', class extends exports.Param {
 
     /**
      * @constructs Duty
@@ -591,6 +597,7 @@ _.define(exports, 'Operator', class extends exports.Param {
 
 /**
  * @name EMS.repo.LeftOperand
+ * @extends EMS.repo.Param
  * @class
  */
 _.define(exports, 'LeftOperand', class extends exports.Param {

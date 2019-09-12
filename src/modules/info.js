@@ -91,7 +91,7 @@ _.enumerate(exports, "Collection", class extends exports.Entity {
 
     constructor(param) {
         super(param);
-        _.assert((param instanceof _module.repo.AssetCollection) || (param instanceof _module.repo.PartyCollection), "invalid parameter class");
+        _.assert(param instanceof _module.repo.AssetCollection, "invalid parameter class");
     }
 
 });
