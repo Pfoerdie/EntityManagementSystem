@@ -25,17 +25,17 @@ _.enumerate(exports, "express", function () {
 });
 
 /** 
- * @name EMS.service.socket
- * @type {*}
+ * @name EMS.service.socket_io
+ * @type {SocketIO~IO}
  * @public
  */
-_.enumerate(exports, "socket", function () {
-    if (_cache.socket) return _cache.socket;
+_.enumerate(exports, "socket_io", function () {
+    if (_cache.io) return _cache.io;
 
     const
         SocketIO = require('socket.io');
 
-    _cache.socket = null;
+    _cache.io = SocketIO(/* TODO param */);
     // TODO
-    return _cache.socket;
+    return _cache.io;
 });
