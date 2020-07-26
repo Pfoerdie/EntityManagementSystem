@@ -1,77 +1,49 @@
 const EMS = require("./index.js");
-const assert = require("assert");
-const is = require("./is.js");
-const uuid = require("uuid/v4");
+const { $iterator, $name_tag, $species, $ident_ts,
+    assert, isObject, isIdentifier, lockProp, time, isClassOf } = require("./util.js");
+const neo4j = require("./neo4j.js");
+const readEntity = neo4j.requireQuery(__dirname, "readEntity.cyp");
 
-class Entity {
+/** @type {Map<Entity#uid, Entity} */
+const entites = new Map();
 
-    static #entities = new Map();
+module.exports = class Entity {
 
-    #uid;
-    #removed = false;
+    get [$name_tag]() { return "Entity"; }
+    static get [$species]() { return Entity; };
 
-    constructor(uid) {
-        assert(new.target !== Entity, "Entity is an abstract class.");
-        assert(is.string.nonempty(uid), "The uid must be a non empty string.");
-        assert(!Entity.#entities.has(uid), "This uid is already used by another Entity.");
-        Entity.#entities.set(uid, this);
-        this.#uid = uid;
-    }
-
-    get uid() {
-        return this.#uid;
-    }
-
-    remove() {
-        // NOTE removing entities could be very bad without care,
-        //      because other processes might depend on them.
-        assert(this instanceof Entity, "This is not an Entity.");
-        if (!this.#removed) {
-            this.#removed = true;
-            Entity.#entities.delete(this.#uid);
+    constructor(record) {
+        assert(new.target !== Entity, Entity, "abstract class", Error);
+        assert(isObject(record) && isIdentifier(record.uid), this, "invalid record", TypeError);
+        for (let key in record) {
+            try {
+                this[key] = record[key];
+            } catch (err) { }
         }
+        this.uid = record.uid;
+        lockProp(this, "uid");
+        assert(!entities.has(this.uid), this, "uid already in use", Error);
+        entites.set(this.uid, this);
+        /** @type {Number} */
+        this[$ident_ts] = 0;
     }
 
-    async load({ props = true, rels = false, types = false } = {}) {
-        assert(this instanceof Entity, "This is not an Entity.");
-        assert(!this.#removed, "This Entity instance got removed.");
-        // TODO retrieve from database and just return
-        // dont change any attributes. that is for the inheriting classes
-        // return null if not found
-    }
-
-    async update({ props = null, rels = null, types = null } = {}) {
-        assert(this instanceof Entity, "This is not an Entity.");
-        assert(!this.#removed, "This Entity instance got removed.");
-        // TODO update data of props, rels and types individually
-    }
-
-    async delete(confirm = false) {
-        assert(this instanceof Entity, "This is not an Entity.");
-        assert(!this.#removed, "This Entity instance got removed.");
-        assert(confirm === true, "The deletion must be confirmed with a true.");
-        // TODO detach delete this
-        this.remove();
-    }
-
-    // static async create({ props = { uid: uuid() }, rels = {}, types = ["Entity"] } = {}) {
-    //     assert(this === Entity, "This is not the Entity class.");
-    //     // TODO asserts and extract for transmission
-    //     // TODO create only if uid is not blocked
-    // }
-
-    static async load(uid) {
-        assert(Entity.isPrototypeOf(this), "This is not a subclass of Entity.");
-        if (Entity.#entities.has(uid)) {
-            return Entity.#entities.get(uid);
+    static async get(uid) {
+        assert(isIdentifier(uid), this.get, "invalid uid", TypeError);
+        if (entities.has(uid)) {
+            return entites.get(uid);
         } else {
-            const entity = new this(uid);
-            assert(entity instanceof Entity, "That is not an instance of Entity.");
-            await entity.load();
-            return entity;
+            const records = await readEntity({ uid });
+            const ts = time();
+            if (records.length === 0) {
+                return null;
+            } else {
+                // assert(isClassOf(Entity)(this[$species]), this, "invalid species", Error);
+                const entity = new this[$species](records[0]);
+                // assert(entity instanceof Entity, this, "invalid entity", Error);
+                entity[$ident_ts] = ts;
+            }
         }
     }
 
-}
-
-module.exports = Entity;
+};

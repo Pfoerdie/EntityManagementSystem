@@ -1,6 +1,7 @@
+const util = require("./util.js");
+const neo4j = require("./neo4j.js");
+
 exports.Entity = require("./Entity.js");
-exports.Asset = require("./Asset.js");
-exports.Party = require("./Party.js");
-exports.Policy = require("./Policy.js");
+exports.Relation = require("./Relation.js");
 
 Object.freeze(exports);
