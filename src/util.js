@@ -7,7 +7,10 @@ exports.$source_species = Symbol("sourceSpecies");
 exports.$target_species = Symbol("targetSpecies");
 exports.$source = Symbol("source");
 exports.$target = Symbol("target");
+exports.$labels = Symbol("labels");
+
 exports.$ident_ts = Symbol("identTs");
+exports.$type = Symbol("type");
 
 exports.time = function time() {
     return Date.now();
@@ -45,6 +48,18 @@ exports.assert = function assert(value, source, errMsg = "", errType = Error) {
     }
 };
 
+exports.isBoolean = function isBoolean(value) {
+    return typeof value === "boolean";
+};
+
+exports.isTruthy = function isTruthy(value) {
+    return !!value;
+};
+
+exports.isFalsy = function isFalsy(value) {
+    return !value;
+};
+
 exports.isString = function isString(value) {
     return typeof value === "string";
 };
@@ -62,8 +77,8 @@ exports.isClass = function isClass(value) {
     return typeof value === "function" && value.prototype && !value.arguments;
 };
 
-exports.isClassOf = function isClassOf(topLvlClass) {
-    return function isClass(value) {
+exports.isSubClassOf = function isSubClassOf(topLvlClass) {
+    return function isSubClass(value) {
         return value === topLvlClass || topLvlClass.isPrototypeOf(value);
     };
 };

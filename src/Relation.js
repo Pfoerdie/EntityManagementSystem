@@ -1,7 +1,7 @@
 const EMS = require("./index.js");
 const { $species, $iterator, $name_tag, $ident_ts, $source, $target, $source_species, $target_species,
     assert, isClassOf, lockProp, time } = require("./util.js");
-const $target_ts = Symbol("targetTs");
+const $target_ts = Symbol("targetTs"), $ident_target = Symbol("lastTarget");
 
 module.exports = class Relation {
 
@@ -33,17 +33,18 @@ module.exports = class Relation {
         lockProp(source, this[$name_tag]);
         /** @type {Number} */
         this[$ident_ts] = 0;
+        this[$ident_target] = null;
     }
 
-    add(target) {
-        // TODO maybe do async and make a clever method
-        // assert(target instanceof this[$target_species], this.add, "invalid target", TypeError);
-        // if (this[$target].has(target.uid)) {
-        //     assert(this[$target].get(target.uid) === target, this.add, "target error", Error);
-        //     return this;
-        // }
-        // this[$target].set(target.uid, target);
-        // this[$target_ts].set(target, 0);
-    }
+    // add(target) {
+    //     // TODO maybe do async and make a clever method
+    //     assert(target instanceof this[$target_species], this.add, "invalid target", TypeError);
+    //     if (this[$target].has(target.uid)) {
+    //         assert(this[$target].get(target.uid) === target, this.add, "target error", Error);
+    //         return this;
+    //     }
+    //     this[$target].set(target.uid, target);
+    //     this[$target_ts].set(target, 0);
+    // }
 
 };

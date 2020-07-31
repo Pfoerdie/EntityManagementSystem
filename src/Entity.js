@@ -1,6 +1,6 @@
 const EMS = require("./index.js");
 const { $iterator, $name_tag, $species, $ident_ts,
-    assert, isObject, isIdentifier, lockProp, time, isClassOf } = require("./util.js");
+    assert, isObject, isIdentifier, lockProp, time } = require("./util.js");
 const neo4j = require("./neo4j.js");
 const readEntity = neo4j.requireQuery(__dirname, "readEntity.cyp");
 
@@ -28,22 +28,28 @@ module.exports = class Entity {
         this[$ident_ts] = 0;
     }
 
-    static async get(uid) {
-        assert(isIdentifier(uid), this.get, "invalid uid", TypeError);
-        if (entities.has(uid)) {
-            return entites.get(uid);
-        } else {
-            const records = await readEntity({ uid });
-            const ts = time();
-            if (records.length === 0) {
-                return null;
-            } else {
-                // assert(isClassOf(Entity)(this[$species]), this, "invalid species", Error);
-                const entity = new this[$species](records[0]);
-                // assert(entity instanceof Entity, this, "invalid entity", Error);
-                entity[$ident_ts] = ts;
-            }
-        }
-    }
+    // Create Read Update Delete (List)
+    // static create
+    // read
+    // update
+    // delete
+    // static list
+
+    // static async get(uid) {
+    //     // TODO maybe something better
+    //     assert(isIdentifier(uid), this.get, "invalid uid", TypeError);
+    //     if (entities.has(uid)) {
+    //         return entites.get(uid);
+    //     } else {
+    //         const records = await readEntity({ uid });
+    //         const ts = time();
+    //         if (records.length === 0) {
+    //             return null;
+    //         } else {
+    //             const entity = new this[$species](records[0]);
+    //             entity[$ident_ts] = ts;
+    //         }
+    //     }
+    // }
 
 };
