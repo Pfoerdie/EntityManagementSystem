@@ -1,4 +1,6 @@
-# EMS (Entity Management System)
+# @pfoerdie/ems 
+
+EMS = Entity Management System
 
 > in development
 
